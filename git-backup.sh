@@ -20,13 +20,20 @@
 #                                
 #-----------------------------------------------------------------------------------
 
-# User Variables:
-username="shobuj47"
-usertoken=""
-backupDir="/root/git_backup"
+scriptsBase=$(dirname "$0")
+backupDir="$scriptsBase/git_backup"
 
+credentialsConfig="$scriptsBase/git-credential.json"
+if [ -f $credentialsConfig ]; then
+	echo "Configuration File Found $credentialsConfig"
+	username=$( cat $credentialsConfig | jq -r ".username" )
+	usertoken=$(cat $credentialsConfig | jq -r ".password" )
+else
+	echo "Configuration file not found $credentialsConfig"
+	exit 0
+fi
 
-
+echo "Username : $username , Usertoken : $usertoken"
 
 mkdir -p $backupDir
 if [ -d $backupDir ] ; then
