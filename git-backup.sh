@@ -44,13 +44,11 @@ else
 fi
 
 if [[ -z ${usertoken} ]]; then
-repoUrl="https://api.github.com/users/$username/repos"
+	repoList=$( curl https://api.github.com/users/$username/repos | jq -r ".[].clone_url" )
 else
-repoUrl="https://api.github.com/users/$username/repos?access_token=$usertoken"
+	repoList=$( curl --header "Authorization: token $usertoken" https://api.github.com/user/repos | jq -r ".[].clone_url" )
 fi
 
-echo $repoUrl
-repoList=$(curl $repoUrl | jq -r ".[].clone_url" )
 echo "Repolist"
 echo "========================================================================"
 while IFS= read -r repoUrl; do
