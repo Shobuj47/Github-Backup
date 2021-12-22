@@ -20,7 +20,8 @@
 #                                
 #-----------------------------------------------------------------------------------
 
-scriptsBase=$(dirname "$0")
+reposCount=100
+scriptsBase="$( cd "$( dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd )"
 backupDir="$scriptsBase/git_backup"
 
 credentialsConfig="$scriptsBase/git-credential.json"
@@ -46,18 +47,35 @@ fi
 if [[ -z ${usertoken} ]]; then
 	repoList=$( curl https://api.github.com/users/$username/repos | jq -r ".[].clone_url" )
 else
-	repoList=$( curl --header "Authorization: token $usertoken" https://api.github.com/user/repos | jq -r ".[].clone_url" )
+	repoList=$( curl --header "Authorization: token $usertoken" https://api.github.com/user/repos?per_page=$reposCount | jq -r ".[].clone_url" )
 fi
 
 echo "Repolist"
 echo "========================================================================"
+updatedCount=0
+createdCount=0
 while IFS= read -r repoUrl; do
+	cd $backupDir
 	repoDir=$(echo $repoUrl | awk -F '/' '{ print $NF }' )
+	if [[ ! -z ${usertoken} ]]; then
+		repoUrl=$(echo "${repoUrl/https\:\/\//https://$username:$usertoken@}")
+	fi
 	cloneDir="${backupDir}/${repoDir}"
 	echo "Repository Url: $repoUrl"
 	echo "Clone Dir: $cloneDir"
-	git clone $repoUrl $cloneDir
-	echo "Pulling All Branches"
-	cd $cloneDir/ && git pull --all
+	if [[ -d $cloneDir ]]; then
+		echo "Existing Local Repository! Getting Updates >>>"
+		cd $cloneDir/ && git fetch --all && git pull --all
+		((updatedCount++))
+	else
+		echo "New Local Repository! Cloning from remote >>>"
+		git clone $repoUrl $cloneDir
+	        echo "Pulling All Branches"
+        	cd $cloneDir/ && git pull --all
+		((createdCount++))
+	fi
 done <<< "$repoList"
 
+
+echo "Total Updated: $updatedCount"
+echo "Total New: $createdCount"
