@@ -20,37 +20,60 @@
 #                                
 #-----------------------------------------------------------------------------------
 
-reposCount=100
+reposCount=500
+orgName='togetherGithub'
 scriptsBase="$( cd "$( dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd )"
 backupDir="$scriptsBase/git_backup"
 
+
+
+gitApiUrl=""
+
+
 credentialsConfig="$scriptsBase/git-credential.json"
 if [ -f $credentialsConfig ]; then
-	echo "Configuration File Found $credentialsConfig"
+	echo "$(date +"%Y-%m-%d %T") | Configuration File Found $credentialsConfig"
 	username=$( cat $credentialsConfig | jq -r ".username" )
 	usertoken=$(cat $credentialsConfig | jq -r ".password" )
 else
-	echo "Configuration file not found $credentialsConfig"
-	exit 0
+	echo "$(date +"%Y-%m-%d %T") | ERROR : Configuration file not found $credentialsConfig"
+	exit 1
 fi
 
-echo "Username : $username , Usertoken : $usertoken"
+if [[ $orgName == '' ]]; then
+	echo "$(date +"%Y-%m-%d %T") | User Repository"
+        gitApiUrl="https://api.github.com/users/$username/repos"
+else
+	echo "$(date +"%Y-%m-%d %T") | Organization Repository"
+        gitApiUrl="https://api.github.com/orgs/$orgName/repos"
+fi
+
+if [[ $gitApiUrl == '' ]]; then
+	echo "$(date +"%Y-%m-%d %T") | ERROR : GitHub Api Url Empty. Exiting Program!"
+	exit 1
+fi
+
+
+#echo "Username : $username , Usertoken : $usertoken"
 
 mkdir -p $backupDir
+
 if [ -d $backupDir ] ; then
-        echo "Backup directory exists"
+        echo "$(date +"%Y-%m-%d %T") | Backup directory exists"
 else
-        echo "Backup directory does not exists"
+        echo "$(date +"%Y-%m-%d %T") | ERROR : Backup directory does not exists"
 	exit 0
 fi
 
 if [[ -z ${usertoken} ]]; then
-	repoList=$( curl https://api.github.com/users/$username/repos | jq -r ".[].clone_url" )
+	echo "$(date +"%Y-%m-%d %T") | Getting Public Repository List"
+	repoList=$( curl $gitApiUrl | jq -r ".[].clone_url" )
 else
-	repoList=$( curl --header "Authorization: token $usertoken" https://api.github.com/user/repos?per_page=$reposCount | jq -r ".[].clone_url" )
+	echo "$(date +"%Y-%m-%d %T") | Getting All Repository List"
+	repoList=$( curl --header "Authorization: token $usertoken" ${gitApiUrl}?per_page=$reposCount | jq -r ".[].clone_url" )
 fi
 
-echo "Repolist"
+echo "$(date +"%Y-%m-%d %T") | Repolist"
 echo "========================================================================"
 updatedCount=0
 createdCount=0
@@ -61,21 +84,32 @@ while IFS= read -r repoUrl; do
 		repoUrl=$(echo "${repoUrl/https\:\/\//https://$username:$usertoken@}")
 	fi
 	cloneDir="${backupDir}/${repoDir}"
-	echo "Repository Url: $repoUrl"
-	echo "Clone Dir: $cloneDir"
+	echo "$(date +"%Y-%m-%d %T") | Repository Url: $repoUrl"
+	echo "$(date +"%Y-%m-%d %T") | Clone Dir: $cloneDir"
 	if [[ -d $cloneDir ]]; then
-		echo "Existing Local Repository! Getting Updates >>>"
-		cd $cloneDir/ && git fetch --all && git pull --all
+		echo "$(date +"%Y-%m-%d %T") | Existing Local Repository! Getting Updates >>>"
+		cd $cloneDir/ && git fetch --all
 		((updatedCount++))
 	else
-		echo "New Local Repository! Cloning from remote >>>"
+		echo "$(date +"%Y-%m-%d %T") | New Local Repository! Cloning from remote >>>"
 		git clone $repoUrl $cloneDir
-	        echo "Pulling All Branches"
-        	cd $cloneDir/ && git pull --all
+	        echo "$(date +"%Y-%m-%d %T") | Pulling All Branches"
 		((createdCount++))
 	fi
+
+	$branchList=$(cd $cloneDir && git branch -r)
+        if [ -z $(cd $cloneDir && git branch -r) ]; then
+		echo "No Remote Branch Found "
+		exit 0
+	else
+		echo "Branch Found. Pulling all Branches"
+		cd $cloneDir/ && git pull --all
+        fi
+
+
 done <<< "$repoList"
 
 
-echo "Total Updated: $updatedCount"
-echo "Total New: $createdCount"
+echo "$(date +"%Y-%m-%d %T") | Total Updated: $updatedCount"
+echo "$(date +"%Y-%m-%d %T") | Total New: $createdCount"
+echo "$(date +"%Y-%m-%d %T") | Completed"
