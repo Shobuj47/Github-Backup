@@ -15,9 +15,9 @@ There is 3 Different Shell Script:
 ### Configure Json Configuration File
 
 User shall be able to Fetch All Repository from a single Github User/Organization. 
-If Authentication parameters are suplied in **./git-credential.json** configuration file, then the script shall fetch all accesible repositories from that User/Organization.
-If the 'password' parameter is set empty in the **./git-credential.json** file then the script shall fetch all publicly accesible repositories from that User/Organization.
-User must need to provide 'orgname' or 'userreponame' in the **./git-credential.json** configuration file.
+If Authentication parameters are suplied in [git-credential.json](./git-credential.json) configuration file, then the script shall fetch all accesible repositories from that User/Organization.
+If the 'password' parameter is set empty in the [git-credential.json](./git-credential.json) file then the script shall fetch all publicly accesible repositories from that User/Organization.
+User must need to provide 'orgname' or 'userreponame' in the [git-credential.json](./git-credential.json) configuration file.
 * **'orgname'** stores the **'Organization Name'** from Github
 * **    'userreponame'** stores the **'User Name'** from GitHub
 
@@ -27,7 +27,7 @@ In the **'password'** parameter within the configuration file add **'Personal ac
 
 To execute the bash shell program the package 'jq' needs to be installed into the system. 
 To Install 'jq' into the system follow the [link](https://stedolan.github.io/jq/download/).
-After installation of the 'jq' add necessary configuration in the ** ./git-credential.json ** file. 
+After installation of the 'jq' add necessary configuration in the [git-credential.json](./git-credential.json) file. 
 
 If the target repositories owner is an Organization then execute:
 ```sh git-backup.sh 1```
