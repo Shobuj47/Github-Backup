@@ -5,7 +5,7 @@ These scripts shall clone / checkout all repository under a specific Personal/Or
 Users shall be able to create archive Backup from SVN Repositories.
 
 There is 3 Different Shell Script:
-* [git-backup.sh](./git-backup.sh) [To fetch all the repositires in Linux Bash Shell, ](#linux-bash-shell-script)
+*   [git-backup.sh](./git-backup.sh) [To fetch all the repositires in Linux Bash Shell, ](#linux-bash-shell-script)
     * <sub>[git-credential.json](./git-credential.json) [Configuration File ](#configure-json-configuration-file)</sub>
 * [git-backup.ps1](./git-backup.ps1) [To fetch all the repositories in Windows Powershell, ](#windows-powershell-script)
     * <sub>[git-credential.json](./git-credential.json) [Configuration File ](#configure-json-configuration-file)</sub>
