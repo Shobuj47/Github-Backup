@@ -4,11 +4,11 @@ These scripts shall clone / checkout all repository under a specific User/Organi
 Users shall be able to create archive Backup from SVN Repositories.
 
 There is 3 Different Shell Script:
-* [ ./git-backup.sh To fetch all the repositires in Linux Bash Shell, ] (#linux-bash-shell-script)
-    * [./git-credential.json Configuration File ] (#configure-json-configuration-file)
-* [ ./git-backup.ps1 To fetch all the repositories in Windows Powershell, ] (#windows-powershell-script)
-    * [./git-credential.json Configuration File ] (#configure-json-configuration-file)
-* [ ./svn-backup.sh To create archive backup of SVN Repositories. ] (#svn-backup-archiving)
+* [ ./git-backup.sh To fetch all the repositires in Linux Bash Shell, ](#linux-bash-shell-script)
+    * [./git-credential.json Configuration File ](#configure-json-configuration-file)
+* [ ./git-backup.ps1 To fetch all the repositories in Windows Powershell, ](#windows-powershell-script)
+    * [./git-credential.json Configuration File ](#configure-json-configuration-file)
+* [ ./svn-backup.sh To create archive backup of SVN Repositories. ](#svn-backup-archiving)
 
 =====
 
@@ -28,7 +28,7 @@ In the 'password' parameter within the configuration file add 'Personal access t
 ### Linux Bash Shell Script
 
 To execute the bash shell program the package 'jq' needs to be installed into the system. 
-To Install 'jq' into the system follow the [link] (https://stedolan.github.io/jq/download/)
+To Install 'jq' into the system follow the [link](https://stedolan.github.io/jq/download/)
 After installation of the 'jq' add necessary configuration in the ** ./git-credential.json ** file. 
 
 If the target repositories owner is an Organization then execute:
