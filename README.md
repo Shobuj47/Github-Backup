@@ -14,14 +14,14 @@ There is 3 Different Shell Script:
 
 ### Configure Json Configuration File
 
-User shall be able to Fetch All Repository from a single Github User/Organization. 
-If Authentication parameters are suplied in [git-credential.json](./git-credential.json) configuration file, then the script shall fetch all accesible repositories from that User/Organization.
-If the 'password' parameter is set empty in the [git-credential.json](./git-credential.json) file then the script shall fetch all publicly accesible repositories from that User/Organization.
-User must need to provide 'orgname' or 'userreponame' in the [git-credential.json](./git-credential.json) configuration file.
-* **'orgname'** stores the **'Organization Name'** from Github
-* **    'userreponame'** stores the **'User Name'** from GitHub
+User shall be able to Fetch All Repository from a single Github User/Organization.  
+If Authentication parameters are suplied in [git-credential.json](./git-credential.json) configuration file, then the script shall fetch all accesible repositories from that User/Organization.  
+If the 'password' parameter is set empty in the [git-credential.json](./git-credential.json) file then the script shall fetch all publicly accesible repositories from that User/Organization.  
+User must need to provide 'orgname' or 'userreponame' in the [git-credential.json](./git-credential.json) configuration file.  
+* **'orgname'** stores the **'Organization Account Name'** from Github
+* **'userreponame'** stores the **'User Account Name'** from GitHub
 
-In the **'password'** parameter within the configuration file add **'Personal access tokens'** from GitHub. To learn about the 'Personal access tokens' from GitHub you may follow this [link](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-token).
+In the **'password'** parameter within the configuration file add **'Personal access tokens'** from GitHub.  To learn about the 'Personal access tokens' from GitHub you may follow this [link](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-token).
 
 ### Linux Bash Shell Script
 
