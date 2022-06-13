@@ -21,34 +21,52 @@
 #-----------------------------------------------------------------------------------
 
 reposCount=500
-orgName='togetherGithub'
 scriptsBase="$( cd "$( dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd )"
 backupDir="$scriptsBase/git_backup"
-
+orgName=''
+userRepoName=''
 
 
 gitApiUrl=""
 
+isOrganization=$1
 
+# Get Github Credentials and Configurations
 credentialsConfig="$scriptsBase/git-credential.json"
 if [ -f $credentialsConfig ]; then
 	echo "$(date +"%Y-%m-%d %T") | Configuration File Found $credentialsConfig"
 	username=$( cat $credentialsConfig | jq -r ".username" )
 	usertoken=$(cat $credentialsConfig | jq -r ".password" )
+	orgName=$(cat $credentialsConfig | jq -r ".orgname")
+	userRepoName=$(cat $credentialsConfig | jq -r ".userreponame")
 else
 	echo "$(date +"%Y-%m-%d %T") | ERROR : Configuration file not found $credentialsConfig"
 	exit 1
 fi
 
-if [[ $orgName == '' ]]; then
-	echo "$(date +"%Y-%m-%d %T") | User Repository"
-        gitApiUrl="https://api.github.com/users/$username/repos"
+# If Shell Parameter passed is 1 then try pulling organization repository. Else try pulling user repository
+if [[ $isOrganization -eq 1 ]]; then
+	echo "$(date +"%Y-%m-%d %T") | Configuring Organization Repository URL"
+	if [[ "$orgName" != "" ]]; then
+		echo "$(date +"%Y-%m-%d %T") | Organization Repository"
+	        gitApiUrl="https://api.github.com/orgs/$orgName/repos"
+	else
+		echo "$(date +"%Y-%m-%d %T") | Organization Name Not Found in Configuration File!"
+		exit 1
+	fi
 else
-	echo "$(date +"%Y-%m-%d %T") | Organization Repository"
-        gitApiUrl="https://api.github.com/orgs/$orgName/repos"
+	echo "$(date +"%Y-%m-%d %T") | Configuring User Repository URL"
+	if [[ "$userRepoName" != "" ]]; then
+		echo "$(date +"%Y-%m-%d %T") | User Repository"
+		gitApiUrl="https://api.github.com/users/$userRepoName/repos"
+	else
+		echo "$(date +"%Y-%m-%d %T") | User Repository Name Not Found in Configuration File!"
+		exit 1
+	fi
 fi
 
-if [[ $gitApiUrl == '' ]]; then
+# If GitHub API URL is not constructed then exit
+if [[ $gitApiUrl -eq '' ]]; then
 	echo "$(date +"%Y-%m-%d %T") | ERROR : GitHub Api Url Empty. Exiting Program!"
 	exit 1
 fi
@@ -56,15 +74,18 @@ fi
 
 #echo "Username : $username , Usertoken : $usertoken"
 
+# Create Backup Directory
 mkdir -p $backupDir
 
+# If Backup Directory Does Not Exists then exit
 if [ -d $backupDir ] ; then
         echo "$(date +"%Y-%m-%d %T") | Backup directory exists"
 else
         echo "$(date +"%Y-%m-%d %T") | ERROR : Backup directory does not exists"
-	exit 0
+	exit 1
 fi
 
+# IF User Token / Password Exists then pull all repository with Authentication. Else pull public repository
 if [[ -z ${usertoken} ]]; then
 	echo "$(date +"%Y-%m-%d %T") | Getting Public Repository List"
 	repoList=$( curl $gitApiUrl | jq -r ".[].clone_url" )
@@ -77,6 +98,7 @@ echo "$(date +"%Y-%m-%d %T") | Repolist"
 echo "========================================================================"
 updatedCount=0
 createdCount=0
+# Read Each Repository and Pull Repository
 while IFS= read -r repoUrl; do
 	cd $backupDir
 	repoDir=$(echo $repoUrl | awk -F '/' '{ print $NF }' )
@@ -86,6 +108,8 @@ while IFS= read -r repoUrl; do
 	cloneDir="${backupDir}/${repoDir}"
 	echo "$(date +"%Y-%m-%d %T") | Repository Url: $repoUrl"
 	echo "$(date +"%Y-%m-%d %T") | Clone Dir: $cloneDir"
+
+	# If Clone Directory Exists then fetch updates only. Else Clone the repository. 
 	if [[ -d $cloneDir ]]; then
 		echo "$(date +"%Y-%m-%d %T") | Existing Local Repository! Getting Updates >>>"
 		cd $cloneDir/ && git fetch --all
@@ -97,12 +121,12 @@ while IFS= read -r repoUrl; do
 		((createdCount++))
 	fi
 
+	# If No Remote Branch Found then do nothing. Else pull the repository.
 	$branchList=$(cd $cloneDir && git branch -r)
         if [ -z $(cd $cloneDir && git branch -r) ]; then
-		echo "No Remote Branch Found "
-		exit 0
+		echo "$(date +"%Y-%m-%d %T") | No Remote Branch Found"
 	else
-		echo "Branch Found. Pulling all Branches"
+		echo "$(date +"%Y-%m-%d %T") | Branch Found. Pulling all Branches"
 		cd $cloneDir/ && git pull --all
         fi
 
